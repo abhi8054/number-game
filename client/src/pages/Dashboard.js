@@ -11,6 +11,7 @@ function Dashboard() {
         number_2 :""
     })
     const [result,setResult] = useState(0)
+    const [id,setId] = useState("")
     const [error,setError] = useState(false)
 
     useEffect(() =>{
@@ -35,22 +36,28 @@ function Dashboard() {
             },
           };
           try{
-            const result = await axios(config)
-            const {number_1,number_2,sum} = result.data.data
-            setData({
-                number_1:number_1,
-                number_2:number_2,
-            });
-            setResult(sum)
+            const result = await axios(config);
+            console.log(result.data);
+            const {empty,data} = result.data
+            if(empty){
+               return
+            }else{
+                const {number_1,number_2,sum,_id} = data[0]
+                setData({
+                    number_1:number_1,
+                    number_2:number_2,
+                });
+                setId(_id)
+                setResult(sum);
+            }
+
           }catch(e) {
             console.log(e)
           }
     }
     
-
     const clickHandler = async (e) =>{
-        console.log("data",data);
-        if(isNaN(data.number_1) || isNaN(data.number_2)) {
+        if(isNaN(data.number_1) || isNaN(data.number_2) || data.number_1 === "" || data.number_2 === "") {
             setError(true)
             return
         };
@@ -64,14 +71,13 @@ function Dashboard() {
             },
             data : {
                 ...data,
-                sum : data.number_1+data.number_2
+                sum : data.number_1+data.number_2,
+                id:id
             }
           };
           try{
-            const result = await axios(config)
-            console.log(result);
+            await axios(config)
             setResult(data.number_1+data.number_2)
-            console.log(data);
           }catch(e) {
             console.log(e)
           }
